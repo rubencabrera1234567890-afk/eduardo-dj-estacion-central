@@ -22,16 +22,9 @@ body{
 .cyan{color:#39e7ff;font-weight:800;letter-spacing:2px}
 h1{font-size:clamp(1.7rem,5vw,3rem);margin:8px}
 p{color:#b6bdd5}
-audio{width:100%;margin:18px 0}
-.lista{display:grid;gap:10px;margin-top:24px;text-align:left}
-.mezcla{
-  display:flex;align-items:center;gap:12px;
-  padding:12px;background:#1b203b;border:1px solid #39345f;
-  border-radius:12px;
-}
-.nombre{flex:1;min-width:0;overflow-wrap:anywhere}
-.btn{
-  border:0;border-radius:9px;padding:10px 14px;
+
+  
+  s:9px;padding:10px 14px;
   background:#8b4de2;color:white;font-weight:800;
   cursor:pointer;white-space:nowrap;
 }
@@ -74,78 +67,18 @@ audio{width:100%;margin:18px 0}
 </main>
 
 <script>
-const mezclas = [
-  {
-    nombre: "Mesclado Electrónico (06-07-2011) Sandoval",
-    url: "Mesclado%20Electr%C3%B3nico%20(06-07-2011)%20Sandoval.mp3",
-    local: true
-  },
-  {
-    nombre: "FLASHBACK 67 DANCE 2000-2010",
-    id: "1v6IAs6tMywrfTx9_O1LkMGFaZZXtB_Ot"
-  },
-  {nombre:"Mezcla 03",id:"1DpTlT6BjIvsqs26g3qG-dIy7u9h4Oo7u"},
-  {nombre:"Mezcla 04",id:"1f7Tqj-NOXo8H-DEwSwGZOKrlSxStPNyE"},
-  {nombre:"Mezcla 05",id:"1EzxkVfMBnXz4H_kpCh40pbhRz6og-6TG"},
-  {nombre:"Mezcla 06",id:"1NA9hwOqsXZBEGaeG9fjdeEq6heKuaY3U"},
-  {nombre:"Mezcla 07",id:"1evqrX6ZkPQXRocuxvGyEo8v2ybnk1InN"},
-  {nombre:"Mezcla 08",id:"1ksnTZcs98guEsCiwZ4S8sioW6eXf2YR7"},
-  {nombre:"Mezcla 09",id:"1G6d2KsCJ2v9h4RwvxcRNOH_7_ivSzKuG"},
-  {nombre:"Mezcla 10",id:"1pYGrIZEXYxYH13rcWce64D8LD81EKW6R"},
-  {nombre:"Mezcla 11",id:"1cREfBLD7AY-WZGg6lLS2-fwhbonCzZZJ"},
-  {nombre:"Mezcla 12",id:"1JrCduLSwAb8PQACtX7MfLfItgPFf0UnK"},
-  {nombre:"Mezcla 13",id:"1eO5A_7SqsizUlLlDoZ5NC-NpuuNj0wPD"},
-  {nombre:"Mezcla 14",id:"1lO3jtAUgagG4BVcWXhXADwAFDQUViNjJ"},
-  {nombre:"Mezcla 15",id:"1L8jMtR-DWv5mq-tz9m5xh49xtrtaOrfb"},
-  {nombre:"Mezcla 16",id:"1YB_yE29xnRCB-iIunfXrFEmy4EFwKW-S"},
-  {nombre:"Mezcla 17",id:"1pd65z-LS5wO6r66juNrnnCRfNRt8fS9D"},
-  {nombre:"Mezcla 18",id:"1ifXU6XdKRz9tzVk8DWQFw6aicCBpCzxp"},
-  {nombre:"Mezcla 19",id:"1NUBU7mgsrcYgcuCWw9uG50aek4Xo0KZy"}
-];
 
-const audio = document.getElementById("audio");
-const titulo = document.getElementById("actual");
-const estado = document.getElementById("estado");
-const lista = document.getElementById("lista");
 
-mezclas.forEach((mezcla, indice) => {
-  const fila = document.createElement("div");
-  fila.className = "mezcla";
+  
 
-  const nombre = document.createElement("div");
-  nombre.className = "nombre";
-  nombre.textContent = `${indice + 1}. ${mezcla.nombre}`;
 
-  const boton = document.createElement("button");
-  boton.className = "btn";
-  boton.type = "button";
-  boton.textContent = "▶ Reproducir";
+  
 
-  boton.addEventListener("click", () => {
-    document.querySelectorAll(".mezcla").forEach(el =>
-      el.classList.remove("activa")
-    );
-    fila.classList.add("activa");
-    titulo.textContent = mezcla.nombre;
 
-    if (mezcla.local) {
-      audio.src = mezcla.url;
-    } else {
-      audio.src = "https://drive.google.com/uc?export=download&id=" +
-        encodeURIComponent(mezcla.id);
-    }
 
-    audio.load();
-    estado.textContent = "Cargando mezcla… Si no comienza, el enlace puede no ser compatible con reproducción directa.";
-    audio.play().then(() => {
-      estado.textContent = "Reproduciendo: " + mezcla.nombre;
-    }).catch(() => {
-      estado.textContent = "No se pudo iniciar esta mezcla desde Drive. La mezcla anterior sigue disponible en la lista; puede ser necesario usar otra fuente de audio.";
-    });
-  });
 
-  fila.append(nombre, boton);
-  lista.appendChild(fila);
+
+  
 });
 </script>
 </body>
