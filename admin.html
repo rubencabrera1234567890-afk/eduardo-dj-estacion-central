@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Eduardo DJ · Mezclas largas</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0a0a12;color:#fff;font-family:'Segoe UI',Arial,sans-serif;padding-bottom:60px}
+  .cab{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:14px 5%;border-bottom:2px solid #a855f7;position:sticky;top:0;background:rgba(10,10,18,.97);backdrop-filter:blur(8px);z-index:10}
+  .logo{font-weight:bold;font-size:1.2em}
+  .logo span{color:#00d4ff;text-shadow:0 0 10px #00d4ff}
+  .logo small{color:#9d9db8;font-weight:normal;display:block;font-size:.72em}
+  .acciones{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .btn{background:#a855f7;border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:.88em}
+  .btn:hover{filter:brightness(1.25)}
+  .btn:disabled{opacity:.6;cursor:wait}
+  .btn.verde{background:#00c896}
+  .btn.gris{background:#2a2a3d;display:inline-flex;align-items:center}
+  .auto{color:#00c896;font-size:.78em;border:1px solid #00c896;border-radius:20px;padding:3px 10px}
+  .panel{max-width:1000px;margin:18px auto;padding:0 14px}
+  .pasos{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.4);border-radius:12px;padding:14px;margin-bottom:14px;line-height:1.7;font-size:.9em}
+  .pasos ol{margin:6px 0 6px 20px}
+  .tam-caja{background:#131022;border:1px solid rgba(168,85,247,.35);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:.88em;color:#c9c9de}
+  #aviso{display:none;background:rgba(255,183,0,.1);border:1px solid #ffb700;color:#ffd670;padding:12px 14px;border-radius:10px;margin-bottom:14px;line-height:1.6;font-size:.9em}
+  .bloque{background:#131022;border:1px solid rgba(168,85,247,.35);border-radius:14px;padding:16px;margin-bottom:16px}
+  .bloque h2{color:#00d4ff;font-size:1.1em;margin-bottom:10px}
+  .bloque p.info{color:#9d9db8;font-size:.85em;margin-bottom:8px;line-height:1.5}
+  .fila{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .fila.columna{flex-direction:column;align-items:stretch;border:1px dashed #333;padding:10px;border-radius:10px}
+  input,select{background:#0a0a12;border:1px solid #3a3a55;border-radius:8px;color:#fff;padding:9px;flex:1;min-width:130px;font-size:.9em}
+  input:focus,select:focus{outline:none;border-color:#00d4ff}
+  button.rojo{background:#ff2e63;border:none;color:#fff;width:38px;height:38px;border-radius:8px;cursor:pointer;flex-shrink:0}
+  .btn-archivo{background:#2a2a3d;border:1px dashed #a855f7;color:#c9a0ff;padding:9px 14px;border-radius:8px;cursor:pointer;font-size:.85em;white-space:nowrap;display:inline-flex;align-items:center}
+  .ok-badge{background:rgba(0,200,150,.12);border:1px solid #00c896;color:#5affd0;padding:8px 12px;border-radius:8px;font-size:.85em;font-family:Consolas,monospace}
+  .mini{display:flex;gap:8px;align-items:center;background:#0a0a12;border:1px solid #2a2a45;border-radius:10px;padding:8px;margin:8px 0}
+  .mini img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#222;flex-shrink:0}
+  .vacio-txt{color:#9d9db8;font-size:.9em;padding:6px 0}
+  .pie{margin-top:24px;color:#666;text-align:center;font-size:.82em;line-height:1.8;padding:0 14px}
+  .pie .btn{margin-top:8px}
+</style>
+</head>
+<body>
+
+<header class="cab">
+  <div class="logo">EDUARDO<span>DJ</span> <small>Panel · mezclas en streaming, sin límite de duración</small></div>
+  <div class="acciones">
+    <span class="auto">✓ Guardado automático</span>
+    <label class="btn gris">📂 Importar datos.js<input type="file" accept=".js" hidden onchange="importarDatos(event)"></label>
+    <button class="btn verde" id="btnPublicar" onclick="descargarPublicacion()">🚀 Publicar (MP3 + datos.js)</button>
+  </div>
+</header>
+
+<div class="panel">
+
+  <div class="pasos">
+    <b>🚀 Cómo publicar tus mezclas (gratis):</b>
+    <ol>
+      <li>Sube tus MP3 con el botón 📁 (pueden ser de <b>30 min, 1 hora o más</b> — no hay límite).</li>
+      <li>Ponles nombre y categoría. Todo queda guardado en este navegador.</li>
+      <li>Pulsa <b>🚀 Publicar</b>: se descargan los <b>archivos MP3</b> y el <b>datos.js</b>.</li>
+      <li>Guarda los MP3 dentro de la carpeta <b>musica/</b> de tu sitio y reemplaza <b>datos.js</b>.</li>
+      <li>Sube la carpeta completa a Netlify (Deploys → arrastrar). ¡Listo!</li>
+    </ol>
+    🎧 Así tu página reproduce en <b>streaming</b>: el visitante pulsa ▶ y suena al instante, sin descargar la mezcla completa ni límites de tiempo.<br>
+    💡 No borres nunca la carpeta <b>musica/</b> de tu computador: es tu copia de seguridad del audio.
+  </div>
+
+  <div class="tam-caja" id="textoTam">💾 Calculando...</div>
+
+  <div id="aviso"></div>
+
+  <div class="bloque">
+    <h2>📱 Contacto y Redes</h2>
+    <div class="fila"><input id="c_whatsapp" placeholder="WhatsApp: código de país + número, sin + ni espacios"></div>
+    <div class="fila"><input id="c_youtube" placeholder="Link de tu canal de YouTube"></div>
+    <div class="fila"><input id="c_instagram" placeholder="Link de Instagram"></div>
+    <div class="fila"><input id="c_facebook" placeholder="Link de Facebook"></div>
+    <div class="fila"><input id="c_tiktok" placeholder="Link de TikTok"></div>
+  </div>
+
+  <div class="bloque">
+    <h2>🆕 Novedades y Lanzamientos</h2>
+    <div id="filasNovedades"></div>
+    <button class="btn" onclick="datos.novedades.push({titulo:'',fecha:'',texto:''}); guardar(); renderNovedades()">➕ Agregar novedad</button>
+  </div>
+
+  <div class="bloque">
+    <h2>🎧 Música (MP3 en streaming)</h2>
+    <p class="info">Los MP3 se publican como archivos en la carpeta <b>musica/</b>: por eso suenan al instante sin importar su duración. También puedes pegar un link directo (ej: archive.org).</p>
+    <label class="btn">📁 Elegir MP3 (puedes elegir varios)<input type="file" accept="audio/*" multiple hidden onchange="elegirAudios(event)"></label>
+    <div id="filasPistas" style="margin-top:10px"></div>
+  </div>
+
+  <div class="bloque">
+    <h2>🛒 Productos de la Tienda</h2>
+    <div id="filasProductos"></div>
+    <button class="btn" onclick="datos.productos.push({nombre:'',descripcion:'',precio:'',linkPago:'',imagen:'',ref:'',tam:0}); guardar(); renderProductos()">➕ Agregar producto</button>
+  </div>
+
+  <div class="bloque">
+    <h2>📸 Galería de Fotos</h2>
+    <label class="btn">🖼️ Subir fotos (puedes elegir varias)<input type="file" accept="image/*" multiple hidden onchange="elegirFotos(event)"></label>
+    <div id="filasGaleria"></div>
+  </div>
+
+  <div class="bloque">
+    <h2>🎥 Videos de YouTube</h2>
+    <div id="filasVideos"></div>
+    <button class="btn" onclick="datos.videos.push({titulo:'',youtube:''}); guardar(); renderVideos()">➕ Agregar video</button>
+  </div>
+
+</div>
+
+<p class="pie">
+  El audio viaja como archivos MP3 en musica/ (streaming). Las fotos viajan dentro de datos.js.<br>
+  <button class="btn gris" onclick="borrarTodo()">🗑 Borrar todo</button>
+</p>
+
+<script src="datos.js"></script>
+<script>
+const CLAVE = "eduardoDJ_datos_v3";
+const CATS = ["80s","90s","2000s","Pop","Rock","Latino","Eurodance","House","Techno","Cumbia","Otras"];
+let db, datos, previewAudio = null;
+
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nuevoRef = () => "f_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const fmtMB = b => (b/1048576).toFixed(1) + " MB";
+const $ = id => document.getElementById(id);
+const espera = ms => new Promise(r => setTimeout(r, ms));
+const nombreArchivoPista = p => "pista-" + p.ref.slice(2) + "." + (p.ext || "mp3");
+
+/* ═══════ ALMACENAMIENTO LOCAL DE ARCHIVOS (IndexedDB) ═══════ */
+function abrirDB(){ return new Promise((ok, fallo) => {
+  const rq = indexedDB.open("eduardoDJ_archivos", 1);
+  rq.onupgradeneeded = e => e.target.result.createObjectStore("blobs");
+  rq.onsuccess = e => { db = e.target.result; ok(); };
+  rq.onerror = () => fallo(rq.error);
+});}
+const idbPut = (k,b) => new Promise((ok,fl) => { const tx=db.transaction("blobs","readwrite"); tx.objectStore("blobs").put(b,k); tx.oncomplete=ok; tx.onerror=()=>fl(tx.error); });
+const idbGet = k => new Promise((ok,fl) => { const rq=db.transaction("blobs","readonly").objectStore("blobs").get(k); rq.onsuccess=()=>ok(rq.result); rq.onerror=()=>fl(rq.error); });
+const idbDel = k => new Promise(ok => { const tx=db.transaction("blobs","readwrite"); tx.objectStore("blobs").delete(k); tx.oncomplete=ok; });
+
+/* ═══════ CONVERSIONES ═══════ */
+function blobToDataURI(blob){ return new Promise((ok,fl) => { const r=new FileReader(); r.onload=()=>ok(r.result); r.onerror=fl; r.readAsDataURL(blob); }); }
+function dataURItoBlob(u){
+  const partes = u.split(","), mime = partes[0].match(/:(.*?);/)[1];
+  const bin = atob(partes[1]), arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  return new Blob([arr], {type:mime});
+}
+function extDeMime(m){
+  const map = {"audio/mpeg":"mp3","audio/mp3":"mp3","audio/mp4":"m4a","audio/aac":"aac","audio/ogg":"ogg",
+               "audio/wav":"wav","audio/x-wav":"wav","audio/webm":"webm","audio/flac":"flac","audio/x-flac":"flac"};
+  return map[m] || "mp3";
+}
+async function cargarImagen(file){
+  try{ return await createImageBitmap(file, {imageOrientation:"from-image"}); }
+  catch(e){ return await new Promise((ok,fl) => { const img=new Image(); const u=URL.createObjectURL(file); img.onload=()=>{URL.revokeObjectURL(u);ok(img);}; img.onerror=fl; img.src=u; }); }
+}
+async function comprimirImagen(file, maxLado, calidad){
+  const img = await cargarImagen(file);
+  const esc2 = Math.min(1, maxLado/Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.width*esc2); c.height = Math.round(img.height*esc2);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  const blob = await new Promise(ok => c.toBlob(ok, "image/jpeg", calidad));
+  return blob || file;
+}
+function bajarBlob(blob, nombre){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ═══════ DATOS ═══════ */
+function normalizar(d){
+  d = d || {};
+  d.contacto = Object.assign({whatsapp:"",youtube:"",instagram:"",facebook:"",tiktok:""}, d.contacto||{});
+  d.novedades = d.novedades || [];
+  d.pistas = (d.pistas||[]).map(p => ({
+    nombre:p.nombre||"", categoria:p.categoria||"Otras",
+    ref:p.ref||"", ext:p.ext||"", tam:p.tam||0,
+    link:p.link || (p.archivo && !String(p.archivo).startsWith("data:") ? p.archivo : "") || ""
+  }));
+  d.productos = (d.productos||[]).map(p => ({
+    nombre:p.nombre||"", descripcion:p.descripcion||"", precio:p.precio||"", linkPago:p.linkPago||"",
+    imagen:(p.imagen && !String(p.imagen).startsWith("data:")) ? p.imagen : (p.imagen||""),
+    ref:p.ref||"", tam:p.tam||0
+  }));
+  d.galeria = (d.galeria||[]).map(g => typeof g==="string"
+    ? {ref:"", tam:0, link:g}
+    : {ref:g.ref||"", tam:g.tam||0, link:g.link || (g.archivo && !String(g.archivo).startsWith("data:") ? g.archivo : "") || ""});
+  d.videos = d.videos || [];
+  return d;
+}
+async function migrar(d){
+  /* Convierte audio/fotos embebidos (versión anterior) a archivos locales */
+  for(const p of d.pistas){
+    if(!p.ref && p.link && p.link.startsWith("data:")){
+      try{
+        const b = dataURItoBlob(p.link);
+        p.ref = nuevoRef(); p.ext = extDeMime(b.type); p.tam = b.size;
+        await idbPut(p.ref, b); p.link = "";
+      }catch(e){}
+    }
+  }
+  for(const p of d.productos){
+    if(!p.ref && p.imagen && p.imagen.startsWith("data:")){
+      try{
+        const b = dataURItoBlob(p.imagen);
+        p.ref = nuevoRef(); p.tam = b.size;
+        await idbPut(p.ref, b); p.imagen = "";
+      }catch(e){}
+    }
+  }
+  for(const g of d.galeria){
+    if(!g.ref && g.link && g.link.startsWith("data:")){
+      try{
+        const b = dataURItoBlob(g.link);
+        g.ref = nuevoRef(); g.tam = b.size;
+        await idbPut(g.ref, b); g.link = "";
+      }catch(e){}
+    }
+  }
+  return d;
+}
+async function cargarDatos(){
+  let raw = null;
+  try{ raw = localStorage.getItem(CLAVE) || localStorage.getItem("eduardoDJ_datos_v2"); }catch(e){}
+  if(!raw && window.DATOS) raw = JSON.stringify(window.DATOS);
+  return await migrar(normalizar(JSON.parse(raw || "{}")));
+}
+function guardar(){ try{ localStorage.setItem(CLAVE, JSON.stringify(datos)); }catch(e){} actualizarTamano(); }
+function avisar(html){ const el=$("aviso"); el.innerHTML=html; el.style.display="block"; window.scrollTo({top:0,behavior:"smooth"}); }
+
+async function actualizarTamano(){
+  let audioB=0, fotosB=0;
+  for(const p of datos.pistas) if(p.ref) audioB += p.tam||0;
+  for(const p of datos.productos) if(p.ref) fotosB += p.tam||0;
+  for(const g of datos.galeria) if(g.ref) fotosB += g.tam||0;
+  $("textoTam").innerHTML = "🎵 Audio: <b>" + fmtMB(audioB) + "</b> (viaja como archivos MP3 · streaming) &nbsp;·&nbsp; 📷 Fotos: <b>" +
+    fmtMB(fotosB) + "</b> (viaja dentro de datos.js ≈ " + fmtMB(fotosB*1.37) + ")";
+}
+
+/* ═══════ CONTACTO ═══════ */
+function renderContacto(){
+  ["whatsapp","youtube","instagram","facebook","tiktok"].forEach(k => {
+    const el = $("c_"+k);
+    el.value = datos.contacto[k] || "";
+    el.oninput = e => { datos.contacto[k]=e.target.value.trim(); guardar(); };
+  });
+}
+
+/* ═══════ NOVEDADES ═══════ */
+function renderNovedades(){
+  $("filasNovedades").innerHTML = datos.novedades.length ? datos.novedades.map((n,i) => `
+    <div class="fila columna">
+      <div class="fila">
+        <input placeholder="Título" value="${esc(n.titulo)}" oninput="datos.novedades[${i}].titulo=this.value;guardar()">
+        <input placeholder="Fecha (opcional)" value="${esc(n.fecha||"")}" oninput="datos.novedades[${i}].fecha=this.value;guardar()" style="max-width:150px">
+        <button class="rojo" onclick="datos.novedades.splice(${i},1);guardar();renderNovedades()">🗑</button>
+      </div>
+      <input placeholder="Descripción" value="${esc(n.texto)}" oninput="datos.novedades[${i}].texto=this.value;guardar()">
+    </div>`).join("") : "<p class='vacio-txt'>Todavía no hay novedades.</p>";
+}
+
+/* ═══════ MÚSICA ═══════ */
+async function elegirAudios(ev){
+  const files = [...ev.target.files]; ev.target.value = "";
+  if(!files.length) return;
+  avisar("⏳ Guardando " + files.length + " archivo(s)...");
+  for(const f of files){
+    const m = f.name.match(/\.([a-z0-9]+)$/i);
+    const ref = nuevoRef();
+    await idbPut(ref, f);
+    datos.pistas.push({
+      nombre: f.name.replace(/\.[^.]+$/,"").replace(/[-_]+/g," ").trim(),
+      categoria:"Otras", ref, ext: m ? m[1].toLowerCase() : extDeMime(f.type),
+      tam:f.size, link:""
+    });
+  }
+  guardar(); renderPistas();
+  avisar("✅ <b>"+files.length+"</b> mezcla(s) guardadas. Ponles nombre y categoría. Al publicar, el panel te descargará cada MP3 para la carpeta <b>musica/</b>.");
+}
+async function cambiarArchivoPista(ev, i){
+  const f = ev.target.files[0]; ev.target.value = "";
+  if(!f) return;
+  if(datos.pistas[i].ref) await idbDel(datos.pistas[i].ref);
+  const m = f.name.match(/\.([a-z0-9]+)$/i);
+  const ref = nuevoRef();
+  await idbPut(ref, f);
+  Object.assign(datos.pistas[i], {ref, ext: m ? m[1].toLowerCase() : extDeMime(f.type), tam:f.size, link:""});
+  guardar(); renderPistas();
+  avisar("✅ Audio reemplazado ("+fmtMB(f.size)+").");
+}
+async function bajarArchivoPista(i){
+  const p = datos.pistas[i];
+  if(!p.ref){ alert("Esta pista usa un link, no necesita descargarse."); return; }
+  const b = await idbGet(p.ref);
+  if(b) bajarBlob(b, nombreArchivoPista(p));
+  else alert("El archivo ya no está en este navegador. Vuelve a elegirlo con 📁.");
+}
+async function borrarPista(i){
+  if(datos.pistas[i].ref) await idbDel(datos.pistas[i].ref);
+  datos.pistas.splice(i,1); guardar(); renderPistas();
+}
+async function probarPista(i){
+  if(previewAudio) previewAudio.pause();
+  const p = datos.pistas[i], a = new Audio();
+  if(p.ref){ const b = await idbGet(p.ref); if(b) a.src = URL.createObjectURL(b); }
+  else a.src = p.link || "";
+  a.onerror = () => alert("No se pudo reproducir. Si es link, verifica que apunte directo al MP3.");
+  a.play().catch(()=>{});
+  previewAudio = a;
+}
+function renderPistas(){
+  const cont = $("filasPistas");
+  if(!datos.pistas.length){ cont.innerHTML = "<p class='vacio-txt'>Todavía no subiste mezclas. Usa el botón 📁 Elegir MP3 de arriba.</p>"; return; }
+  cont.innerHTML = datos.pistas.map((p,i) => `
+    <div class="fila columna">
+      <div class="fila">
+        <input placeholder="Nombre de la mezcla" value="${esc(p.nombre)}" oninput="datos.pistas[${i}].nombre=this.value;guardar()">
+        <select onchange="datos.pistas[${i}].categoria=this.value;guardar()">
+          ${CATS.map(c => `<option ${c===(p.categoria||"Otras")?"selected":""}>${c}</option>`).join("")}
+        </select>
+        <button class="btn" onclick="probarPista(${i})" title="Probar">▶</button>
+        <button class="btn gris" onclick="bajarArchivoPista(${i})" title="Descargar este MP3">📥</button>
+        <button class="rojo" onclick="borrarPista(${i})">🗑</button>
+      </div>
+      ${p.ref
+        ? `<div class="fila"><span class="ok-badge">✅ musica/${nombreArchivoPista(p)}${p.tam ? " · "+fmtMB(p.tam) : ""}</span><label class="btn-archivo">📁 Cambiar audio<input type="file" accept="audio/*" hidden onchange="cambiarArchivoPista(event,${i})"></label></div>`
+        : `<div class="fila"><input value="${esc(p.link)}" placeholder="Pega un link directo al MP3 (ej: archive.org)" oninput="datos.pistas[${i}].link=this.value.trim();guardar()"><label class="btn-archivo">📁 Elegir MP3<input type="file" accept="audio/*" hidden onchange="cambiarArchivoPista(event,${i})"></label></div>`}
+    </div>`).join("");
+}
+
+/* ═══════ PRODUCTOS ═══════ */
+async function cambiarImagenProd(ev, i){
+  const f = ev.target.files[0]; ev.target.value = "";
+  if(!f) return;
+  if(datos.productos[i].ref) await idbDel(datos.productos[i].ref);
+  let blob; try{ blob = await comprimirImagen(f, 1000, .85); }catch(e){ blob = f; }
+  const ref = nuevoRef();
+  await idbPut(ref, blob);
+  Object.assign(datos.productos[i], {ref, tam:blob.size, imagen:""});
+  guardar(); renderProductos();
+}
+function renderProductos(){
+  $("filasProductos").innerHTML = datos.productos.length ? datos.productos.map((p,i) => `
+    <div class="fila columna">
+      <div class="fila">
+        <input placeholder="Nombre del producto" value="${esc(p.nombre)}" oninput="datos.productos[${i}].nombre=this.value;guardar()">
+        <input placeholder="Precio (ej: $8.000)" value="${esc(p.precio||"")}" oninput="datos.productos[${i}].precio=this.value;guardar()" style="max-width:160px">
+        <button class="rojo" onclick="borrarProducto(${i})">🗑</button>
+      </div>
+      <input placeholder="Descripción" value="${esc(p.descripcion||"")}" oninput="datos.productos[${i}].descripcion=this.value;guardar()">
+      <div class="fila">
+        <input placeholder="Link de pago en línea (opcional, ej: Mercado Pago)" value="${esc(p.linkPago||"")}" oninput="datos.productos[${i}].linkPago=this.value.trim();guardar()">
+        <label class="btn-archivo">🖼️ Imagen<input type="file" accept="image/*" hidden onchange="cambiarImagenProd(event,${i})"></label>
+        ${p.ref ? `<span class="ok-badge">✅ Guardada</span>` : ""}
+      </div>
+    </div>`).join("") : "<p class='vacio-txt'>Todavía no hay productos.</p>";
+}
+async function borrarProducto(i){
+  if(datos.productos[i].ref) await idbDel(datos.productos[i].ref);
+  datos.productos.splice(i,1); guardar(); renderProductos();
+}
+
+/* ═══════ GALERÍA ═══════ */
+async function elegirFotos(ev){
+  const files = [...ev.target.files]; ev.target.value = "";
+  if(!files.length) return;
+  avisar("⏳ Optimizando y guardando fotos...");
+  let ok = 0;
+  for(const f of files){
+    try{
+      const blob = await comprimirImagen(f, 1200, .82);
+      const ref = nuevoRef();
+      await idbPut(ref, blob);
+      datos.galeria.push({ref, tam:blob.size, link:""});
+      ok++;
+    }catch(e){}
+  }
+  guardar(); renderGaleria();
+  avisar("✅ <b>"+ok+"</b> foto(s) guardadas y optimizadas.");
+}
+async function borrarFoto(i){
+  if(datos.galeria[i].ref) await idbDel(datos.galeria[i].ref);
+  datos.galeria.splice(i,1); guardar(); renderGaleria();
+}
+async function renderGaleria(){
+  const cont = $("filasGaleria");
+  if(!datos.galeria.length){ cont.innerHTML = "<p class='vacio-txt'>Todavía no subiste fotos.</p>"; return; }
+  cont.innerHTML = "";
+  for(let i=0;i<datos.galeria.length;i++){
+    const g = datos.galeria[i];
+    let src = g.link;
+    if(g.ref){ const b = await idbGet(g.ref); if(b) src = URL.createObjectURL(b); }
+    const div = document.createElement("div");
+    div.className = "mini";
+    div.innerHTML = `<img src="${esc(src||"")}"><span style="flex:1;font-size:.88em;color:#9d9db8">Foto ${i+1}${g.tam ? " · "+fmtMB(g.tam) : ""}</span><button class="rojo">🗑</button>`;
+    div.querySelector("button").onclick = () => borrarFoto(i);
+    cont.appendChild(div);
+  }
+}
+
+/* ═══════ VIDEOS ═══════ */
+function renderVideos(){
+  $("filasVideos").innerHTML = datos.videos.length ? datos.videos.map((v,i) => `
+    <div class="fila">
+      <input placeholder="Título" value="${esc(v.titulo)}" oninput="datos.videos[${i}].titulo=this.value;guardar()">
+      <input placeholder="Link de YouTube" value="${esc(v.youtube)}" oninput="datos.videos[${i}].youtube=this.value.trim();guardar()">
+      <button class="rojo" onclick="datos.videos.splice(${i},1);guardar();renderVideos()">🗑</button>
+    </div>`).join("") : "<p class='vacio-txt'>Todavía no hay videos.</p>";
+}
+
+/* ═══════ PUBLICAR ═══════ */
+async function descargarPublicacion(){
+  const btn = $("btnPublicar"), txt = btn.textContent;
+  const nMP3 = datos.pistas.filter(p=>p.ref).length;
+  if(nMP3 > 1 && !confirm("Se descargarán "+nMP3+" archivos MP3 + el datos.js.\n\nTu navegador puede preguntar si permites varias descargas → pulsa Permitir.\n\n¿Continuar?")) return;
+  btn.disabled = true; btn.textContent = "⏳ Preparando...";
+  try{
+    const out = { contacto:datos.contacto, novedades:datos.novedades, pistas:[], productos:[], galeria:[], videos:datos.videos };
+    const faltan = [];
+    let bajados = 0;
+    for(const p of datos.pistas){
+      let ruta = "";
+      if(p.ref){
+        const b = await idbGet(p.ref);
+        if(b){
+          const nombre = nombreArchivoPista(p);
+          ruta = "musica/" + nombre;
+          bajarBlob(b, nombre); bajados++;
+          await espera(400);
+        } else if(p.link) ruta = p.link;
+        else faltan.push(p.nombre || "(sin nombre)");
+      } else ruta = p.link || "";
+      out.pistas.push({nombre:p.nombre, categoria:p.categoria||"Otras", archivo:ruta});
+    }
+    for(const p of datos.productos){
+      let imagen = p.imagen || "";
+      if(p.ref){ const b = await idbGet(p.ref); if(b) imagen = await blobToDataURI(b); }
+      out.productos.push({nombre:p.nombre, descripcion:p.descripcion||"", precio:p.precio||"", linkPago:p.linkPago||"", imagen});
+    }
+    for(const g of datos.galeria){
+      let s = g.link || "";
+      if(g.ref){ const b = await idbGet(g.ref); if(b) s = await blobToDataURI(b); }
+      out.galeria.push(s);
+    }
+    const texto = "// ═══ datos.js — EDUARDO DJ ESTACIÓN CENTRAL ═══\n// Generado el " + new Date().toLocaleString() +
+      "\n// La música vive en la carpeta musica/ (streaming, sin límite de duración)\nwindow.DATOS = " + JSON.stringify(out) + ";\n";
+    bajarBlob(new Blob([texto], {type:"text/javascript"}), "datos.js");
+
+    let msg = "✅ Publicación lista: <b>"+bajados+"</b> MP3 + <b>datos.js</b>.<br><br>" +
+      "<b>Ahora, 3 pasos:</b><br>" +
+      "1️⃣ Guarda los MP3 descargados dentro de la carpeta <b>musica/</b> de tu sitio (si el navegador pregunta, permite varias descargas).<br>" +
+      "2️⃣ Reemplaza el archivo <b>datos.js</b> de tu carpeta por el recién descargado.<br>" +
+      "3️⃣ Sube la carpeta completa a Netlify (Deploys → arrastrar).<br><br>" +
+      "🎧 Los visitantes pulsarán ▶ y la mezcla sonará al instante, de principio a fin, sin límite de tiempo.";
+    if(faltan.length) msg += "<br><br>⚠️ Estas pistas quedaron SIN archivo (el MP3 ya no está en este navegador): <b>"+esc(faltan.join(", "))+"</b>";
+    avisar(msg);
+  }catch(e){ alert("Error al publicar: " + e.message); }
+  btn.textContent = txt; btn.disabled = false;
+}
+
+async function importarDatos(ev){
+  const f = ev.target.files[0]; ev.target.value = "";
+  if(!f) return;
+  avisar("⏳ Importando datos.js...");
+  try{
+    const texto = await f.text();
+    const d = new Function(texto + "\n;return window.DATOS;")();
+    if(!d || typeof d !== "object") throw new Error("el archivo no contiene window.DATOS");
+    datos = await migrar(normalizar(d));
+    guardar(); renderTodo();
+    avisar("✅ datos.js importado. Si alguna pista necesita su MP3, verás el campo para volver a elegirlo con 📁.");
+  }catch(e){ alert("No se pudo importar: " + e.message); }
+}
+async function borrarTodo(){
+  if(!confirm("¿Borrar TODOS los datos guardados en este navegador?")) return;
+  if(!confirm("¿Seguro? No se puede deshacer.")) return;
+  localStorage.removeItem(CLAVE); localStorage.removeItem("eduardoDJ_datos_v2");
+  await new Promise(ok => { const tx=db.transaction("blobs","readwrite"); tx.objectStore("blobs").clear(); tx.oncomplete=ok; });
+  datos = normalizar({}); guardar(); renderTodo();
+  avisar("🗑 Todo borrado.");
+}
+
+function renderTodo(){ renderContacto(); renderNovedades(); renderPistas(); renderProductos(); renderGaleria(); renderVideos(); }
+
+/* ═══════ INICIO ═══════ */
+(async () => {
+  try{ await abrirDB(); }
+  catch(e){ alert("Tu navegador bloquea el almacenamiento local.\nUsa Chrome o Edge y evita el modo incógnito."); return; }
+  datos = await cargarDatos();
+  renderTodo();
+  actualizarTamano();
+})();
+</script>
+</body>
+</html>

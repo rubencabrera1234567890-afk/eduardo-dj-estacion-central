@@ -1,85 +1,271 @@
-
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reproductor | Eduardo DJ Estación Central</title>
-<meta name="theme-color" content="#090b18">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reproductor — Eduardo DJ Estación Central</title>
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;min-height:100vh;padding:24px 12px;
-  background:radial-gradient(ellipse at top,#201449,#080a16 65%);
-  color:#fff;font:16px system-ui,Arial,sans-serif;
-}
-.box{
-  width:min(760px,100%);margin:auto;padding:24px;
-  background:#12162b;border:1px solid #39345f;
-  border-radius:18px;text-align:center;
-}
-.cyan{color:#39e7ff;font-weight:800;letter-spacing:2px}
-h1{font-size:clamp(1.7rem,5vw,3rem);margin:8px}
-p{color:#b6bdd5}
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root { --azul:#00d4ff; --morado:#a855f7; --rosa:#ff2ea6; --oscuro:#0a0a12; }
+  body { background:radial-gradient(ellipse at 50% -10%, #2d1b69 0%, #0a0a12 65%); color:#fff;
+         font-family:'Segoe UI',Arial,sans-serif; min-height:100vh; display:flex; flex-direction:column;
+         align-items:center; padding:30px 16px 60px; }
+  .logo { font-size:1.5em; font-weight:bold; }
+  .logo span { color:var(--azul); text-shadow:0 0 10px var(--azul); }
+  .sub { letter-spacing:6px; color:var(--azul); text-shadow:0 0 12px var(--azul); font-size:.9em;
+         border-top:2px solid var(--azul); border-bottom:2px solid var(--azul); padding:4px 22px; margin:8px 0 28px; }
 
-  
-  s:9px;padding:10px 14px;
-  background:#8b4de2;color:white;font-weight:800;
-  cursor:pointer;white-space:nowrap;
-}
-.btn:hover{background:#a76af3}
-.btn:focus-visible{outline:2px solid #39e7ff;outline-offset:3px}
-.activa{border-color:#39e7ff}
-.volver{
-  display:inline-block;margin-top:22px;padding:10px 15px;
-  border-radius:9px;background:#8b4de2;color:white;
-  text-decoration:none;font-weight:800;
-}
-.aviso{font-size:.9rem;line-height:1.5}
-@media(max-width:480px){
-  .box{padding:16px}
-  .mezcla{align-items:flex-start}
-  .btn{padding:9px 10px}
-}
+  .player { background:linear-gradient(145deg,#1a1033,#0d0d1f); border:2px solid var(--morado);
+            border-radius:22px; box-shadow:0 0 45px rgba(168,85,247,.35); padding:28px;
+            width:100%; max-width:560px; text-align:center; }
+
+  .disco { width:170px; height:170px; margin:0 auto 20px; border-radius:50%; position:relative;
+    background:radial-gradient(circle, var(--azul) 0 13%, transparent 13.5%),
+               repeating-radial-gradient(circle at 50% 50%, #15122b 0 3px, #1d1840 3px 6px);
+    box-shadow:0 0 35px rgba(0,212,255,.45); animation:girar 5s linear infinite; animation-play-state:paused; }
+  .disco::after { content:""; position:absolute; top:50%; left:50%; width:10px; height:10px;
+    background:#0a0a12; border-radius:50%; transform:translate(-50%,-50%); }
+  .disco.girando { animation-play-state:running; }
+  @keyframes girar { to { transform:rotate(360deg); } }
+
+  .nombre-pista { font-size:1.25em; font-weight:bold; min-height:1.4em; }
+  .cat-pista { color:var(--rosa); text-shadow:0 0 8px var(--rosa); font-size:.9em; }
+  .estado { color:#ffb700; font-size:.82em; min-height:1.3em; margin-bottom:12px; }
+
+  .tiempos { display:flex; justify-content:space-between; font-size:.85em; color:#9d9db8; margin-bottom:4px; }
+  #tDur { color:var(--azul); }
+  input[type=range] { width:100%; accent-color:var(--azul); cursor:pointer; }
+  #seek { margin-bottom:18px; }
+
+  .controles { display:flex; justify-content:center; align-items:center; gap:14px; margin-bottom:18px; }
+  .controles button { background:none; border:1px solid var(--azul); color:var(--azul); width:44px;
+    height:44px; border-radius:50%; cursor:pointer; font-size:1em; transition:.3s; }
+  .controles button:hover { background:var(--azul); color:#000; box-shadow:0 0 15px var(--azul); }
+  #btnPlay { width:62px; height:62px; font-size:1.5em; border:2px solid var(--rosa); color:var(--rosa); }
+  #btnPlay:hover { background:var(--rosa); color:#fff; box-shadow:0 0 20px var(--rosa); }
+  .modo-activo { background:var(--morado) !important; color:#fff !important; box-shadow:0 0 15px var(--morado); }
+
+  .volumen { display:flex; align-items:center; gap:10px; max-width:280px; margin:0 auto 6px; }
+  .volumen input { flex:1; }
+  .nota-stream { color:#5affd0; font-size:.75em; margin-top:8px; }
+
+  .lista-wrap { width:100%; max-width:560px; margin-top:28px; }
+  h2 { text-align:center; font-size:1.3em; color:var(--azul); text-shadow:0 0 12px var(--azul); margin-bottom:14px; }
+  .filtros { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:14px; }
+  .filtro { background:transparent; border:2px solid var(--morado); color:#fff; padding:6px 15px;
+            border-radius:20px; cursor:pointer; font-weight:bold; font-size:.85em; transition:.3s; }
+  .filtro:hover { border-color:var(--azul); color:var(--azul); }
+  .filtro.activo { background:linear-gradient(135deg,var(--azul),var(--morado)); border-color:transparent; }
+
+  .reproductor-lista { background:linear-gradient(145deg,#1a1033,#0d0d1f); border:2px solid var(--morado);
+                       border-radius:18px; padding:14px; }
+  .pista { display:flex; align-items:center; gap:12px; padding:11px; border-radius:10px; cursor:pointer;
+           transition:.25s; border-bottom:1px solid rgba(168,85,247,.2); }
+  .pista:hover, .pista.activa { background:rgba(168,85,247,.15); transform:translateX(6px); }
+  .pista .num { width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg,var(--azul),var(--morado)); display:flex; align-items:center;
+    justify-content:center; font-size:.8em; font-weight:bold; }
+  .pista.activa .num { box-shadow:0 0 12px var(--rosa); }
+  .pista strong { display:block; font-size:.98em; }
+  .pista small { color:#9d9db8; }
+
+  .nota-vacia { color:#9d9db8; text-align:center; border:1px dashed #3a3a55; padding:22px;
+                border-radius:12px; line-height:1.7; }
+  .ayuda { color:#8888a5; font-size:.78em; text-align:center; margin-top:16px; }
+
+  #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
+    background:#1a1033; border:1px solid var(--morado); color:#fff; padding:12px 22px;
+    border-radius:30px; box-shadow:0 0 25px rgba(168,85,247,.5); transition:.4s; z-index:50; opacity:0; }
+  #toast.ver { transform:translateX(-50%) translateY(0); opacity:1; }
 </style>
 </head>
 <body>
-<main class="box">
-  <div class="cyan">🚆 ESTACIÓN CENTRAL</div>
-  <h1>Eduardo DJ</h1>
-  <p>🎧 Elegí tu mezcla y dale al botón para escucharla.</p>
 
-  <h2 id="actual">Reproductor musical</h2>
-  <audio id="audio" controls preload="metadata">
-    <source src="Mesclado%20Electr%C3%B3nico%20(06-07-2011)%20Sandoval.mp3" type="audio/mpeg">
-    Tu navegador no puede reproducir este audio.
-  </audio>
-  <p id="estado" class="aviso">Seleccioná una mezcla de la lista.</p>
+<div class="logo">EDUARDO<span>DJ</span></div>
+<div class="sub">ESTACIÓN CENTRAL</div>
 
-  <section class="lista" id="lista" aria-label="Lista de mezclas"></section>
+<div class="player">
+  <div class="disco" id="disco"></div>
+  <div class="nombre-pista" id="nombre">—</div>
+  <div class="cat-pista" id="categoria"></div>
+  <div class="estado" id="estado"></div>
+  <div class="tiempos"><span id="tActual">0:00</span><span id="tDur">0:00</span></div>
+  <input type="range" id="seek" min="0" max="1000" value="0">
+  <div class="controles">
+    <button id="btnShuffle" title="Aleatorio">🔀</button>
+    <button id="btnPrev" title="Anterior">⏮</button>
+    <button id="btnPlay" title="Reproducir / Pausar">▶</button>
+    <button id="btnNext" title="Siguiente">⏭</button>
+    <button id="btnRepeat" title="Repetir">🔁</button>
+  </div>
+  <div class="volumen">
+    <span>🔊</span>
+    <input type="range" id="vol" min="0" max="100" value="90">
+  </div>
+  <div class="nota-stream">♾️ Streaming: suena al instante, sin límite de duración</div>
+</div>
 
-  <p class="aviso">
-    Si una mezcla de Google Drive no se reproduce aquí, puede necesitar
-    un enlace de audio directo.
-  </p>
-  <a class="volver" href="index.html">← Volver a la estación</a>
-</main>
+<div class="lista-wrap">
+  <h2>🎧 Mis Mezclas</h2>
+  <div class="filtros" id="filtros"></div>
+  <div class="reproductor-lista" id="lista"></div>
+  <p class="ayuda">Atajos: ESPACIO = play/pausa · ← → = avanzar/retroceder 5 seg<br>
+  Si sales y vuelves, la mezcla continúa donde la dejaste.</p>
+</div>
 
+<div id="toast"></div>
+
+<script src="datos.js"></script>
 <script>
+const PISTAS = (window.DATOS && window.DATOS.pistas) ? window.DATOS.pistas : [];
+const CATEGORIAS = ["80s","90s","2000s","Pop","Rock","Latino","Eurodance","House","Techno","Cumbia","Otras"];
 
+/* Streaming real: el navegador carga el MP3 por partes.
+   No hay límite de duración: 30 min, 1 hora o más. */
+const audio = new Audio();
+audio.preload = "metadata";
+audio.volume = 0.9;
 
-  
+let filtro = "Todas", indice = -1, visibles = [];
+let shuffle = false, modoRepeat = 0, lastSave = 0, toastTimer;
 
+const $ = id => document.getElementById(id);
+const fmt = s => isFinite(s) ? Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0") : "0:00";
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const posKey = a => "djpos:" + a;
+const hhmm = s => { const h=Math.floor(s/3600), m=Math.floor(s%3600/60), ss=Math.floor(s%60);
+  return (h ? h+":" : "") + m + ":" + String(ss).padStart(2,"0"); };
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("ver");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("ver"), 2800);
+}
 
-  
+function renderFiltros(){
+  const cats = ["Todas", ...CATEGORIAS.filter(c => PISTAS.some(p => (p.categoria||"Otras") === c))];
+  $("filtros").innerHTML = cats.map(c =>
+    `<button class="filtro ${c===filtro?"activo":""}" onclick="setFiltro('${c}')">${c}</button>`).join("");
+}
+function setFiltro(c){ filtro = c; renderFiltros(); renderLista(); }
 
+function renderLista(){
+  if(!PISTAS.length){
+    $("filtros").innerHTML = "";
+    $("lista").innerHTML = `<p class="nota-vacia">🎵 Aún no hay mezclas publicadas.<br>
+      Súbelas desde el panel <b>admin.html</b> y publica el nuevo <b>datos.js</b> junto a la carpeta <b>musica/</b>.</p>`;
+    return;
+  }
+  visibles = PISTAS.map((p,i)=>i).filter(i => filtro==="Todas" || (PISTAS[i].categoria||"Otras")===filtro);
+  $("lista").innerHTML = visibles.map(i => {
+    const p = PISTAS[i];
+    return `<div class="pista" data-i="${i}" onclick="clic(${i})">
+      <div class="num">▶</div>
+      <div><strong>${esc(p.nombre)}</strong><small>${esc(p.categoria||"Otras")}</small></div>
+    </div>`;
+  }).join("");
+  marcar();
+}
 
+function cargar(i, auto){
+  indice = i;
+  audio.src = PISTAS[i].archivo;
+  $("nombre").textContent = PISTAS[i].nombre;
+  $("categoria").textContent = PISTAS[i].categoria || "Otras";
+  $("seek").value = 0; $("tActual").textContent = "0:00"; $("tDur").textContent = "0:00";
+  $("estado").textContent = "⏳ Conectando...";
+  marcar();
+  if(auto) audio.play().catch(()=>{});
+}
+function clic(i){
+  if(indice === i){ audio.paused ? audio.play().catch(()=>{}) : audio.pause(); }
+  else cargar(i, true);
+}
+function marcar(){
+  document.querySelectorAll("#lista .pista").forEach(el => {
+    const activo = +el.dataset.i === indice;
+    el.classList.toggle("activa", activo);
+    el.querySelector(".num").textContent = (activo && !audio.paused) ? "❚❚" : "▶";
+  });
+  $("btnPlay").textContent = audio.paused ? "▶" : "❚❚";
+  $("disco").classList.toggle("girando", !audio.paused);
+}
+function siguiente(){
+  if(!visibles.length) return;
+  let pos = visibles.indexOf(indice);
+  if(shuffle && visibles.length > 1){
+    let n; do { n = Math.floor(Math.random()*visibles.length); } while(n === pos);
+    pos = n;
+  } else pos = (pos+1) % visibles.length;
+  cargar(visibles[pos], true);
+}
+function anterior(){
+  if(!visibles.length) return;
+  const pos = visibles.indexOf(indice);
+  cargar(visibles[(pos-1+visibles.length) % visibles.length], true);
+}
 
+audio.addEventListener("play", () => { $("estado").textContent = ""; marcar(); });
+audio.addEventListener("pause", marcar);
+audio.addEventListener("waiting", () => $("estado").textContent = "⏳ Cargando... sigue sonando en un momento");
+audio.addEventListener("stalled", () => $("estado").textContent = "⏳ Cargando...");
+audio.addEventListener("playing", () => $("estado").textContent = "");
 
-
-  
+audio.addEventListener("loadedmetadata", () => {
+  $("tDur").textContent = (audio.duration >= 3600 ? hhmm(audio.duration) : fmt(audio.duration));
+  try{
+    const g = parseFloat(localStorage.getItem(posKey(PISTAS[indice].archivo)) || "0");
+    if(g > 20 && g < audio.duration - 10){
+      audio.currentTime = g;
+      toast("⏩ Continúa donde la dejaste (" + fmt(g) + ")");
+    }
+  }catch(e){}
 });
+audio.addEventListener("timeupdate", () => {
+  $("tActual").textContent = fmt(audio.currentTime);
+  if(audio.duration) $("seek").value = (audio.currentTime/audio.duration)*1000;
+  if(!audio.paused && PISTAS[indice] && Date.now() - lastSave > 3000){
+    lastSave = Date.now();
+    try{ localStorage.setItem(posKey(PISTAS[indice].archivo), String(audio.currentTime)); }catch(e){}
+  }
+});
+audio.addEventListener("ended", () => {
+  try{ if(PISTAS[indice]) localStorage.removeItem(posKey(PISTAS[indice].archivo)); }catch(e){}
+  if(modoRepeat === 2){ audio.currentTime = 0; audio.play().catch(()=>{}); }
+  else if(modoRepeat === 1){ siguiente(); }
+  else {
+    const esUltima = visibles.indexOf(indice) === visibles.length-1;
+    esUltima ? marcar() : siguiente();
+  }
+});
+audio.addEventListener("error", () => {
+  $("estado").textContent = "";
+  if(indice >= 0) toast("⚠️ No se encontró: " + (PISTAS[indice].nombre||"pista"));
+});
+
+ $("btnPlay").addEventListener("click", () => {
+  if(indice < 0){ if(visibles.length) cargar(visibles[0], true); return; }
+  audio.paused ? audio.play().catch(()=>{}) : audio.pause();
+});
+ $("btnNext").addEventListener("click", siguiente);
+ $("btnPrev").addEventListener("click", anterior);
+ $("btnShuffle").addEventListener("click", e => { shuffle = !shuffle; e.target.classList.toggle("modo-activo", shuffle); });
+ $("btnRepeat").addEventListener("click", e => {
+  modoRepeat = (modoRepeat+1) % 3;
+  e.target.classList.toggle("modo-activo", modoRepeat > 0);
+  e.target.textContent = modoRepeat === 2 ? "🔂" : "🔁";
+});
+ $("seek").addEventListener("input", e => { if(audio.duration) audio.currentTime = (e.target.value/1000)*audio.duration; });
+ $("vol").addEventListener("input", e => audio.volume = e.target.value/100);
+
+document.addEventListener("keydown", e => {
+  if(e.target.tagName === "INPUT" && e.target.type !== "range") return;
+  if(e.code === "Space"){ e.preventDefault(); $("btnPlay").click(); }
+  if(e.code === "ArrowRight" && audio.duration) audio.currentTime += 5;
+  if(e.code === "ArrowLeft" && audio.duration) audio.currentTime -= 5;
+});
+
+renderFiltros();
+renderLista();
+if(PISTAS.length) cargar(0, false);
 </script>
 </body>
 </html>
